@@ -99,7 +99,7 @@ TrelloPowerUp.initialize({
           const d = new Date(task.deadline);
           console.log(task.deadline);
           console.log(d);
-          const date = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          const date = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
 
           return [
             {
