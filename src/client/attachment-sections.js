@@ -1,44 +1,77 @@
 'use strict';
 import Vue from 'vue/dist/vue.min.js';
 
-const Promise = TrelloPowerUp.Promise;
+// const Promise = TrelloPowerUp.Promise;
 const t = TrelloPowerUp.iframe();
+
+const statuses = {
+  '-3': 'Задача почти просрочена.',
+  '-2': 'Новая задача (не просмотрена)',
+  '-1': 'Задача просрочена.',
+  '1': 'Новая задача. (Не используется)',
+  '2': 'Ждет выполнения',
+  '3': 'Задача выполняется.',
+  '4': 'Условно завершена (ждет контроля постановщиком).',
+  '5': 'Задача завершена.',
+  '6': 'Задача отложена.',
+  '7': 'Задача отклонена ответственным. (Не используется)'
+};
 
 const mainComponent = {
   data() {
     return {
-      taskId: null
+      taskId: t.arg('taskId'),
+      taskUrl: t.arg('taskUrl'),
+      bxLink: t.arg('bxLink'),
+      // title: '',
+      // status: {id: null, title: null},
+      // creator: null,
+      // responsible: null,
+      task: {
+        title: null,
+        status: { id: null, title: null },
+        creator: null,
+        responsible: null,
+      },
+      isLoading: false,
     };
   },
 
   created() {
-    console.log(t.arg('arg'));
-
-    console.log('attachment component created');
-    t.card('attachments')
-      .get('attachments')
-      .filter((attachment) => {
-        return attachment.url.indexOf('task/view/') !== -1;
-      })
-      .then(function (yellowstoneAttachments) {
-        const urls = yellowstoneAttachments.map(function (a) {
-          return a.url;
-        });
-        document.getElementById('urls').textContent = urls.join(', ');
-      })
-      .then(() => {
-        return t.sizeTo('#content');
+    const url = `${this.bxLink}tasks.task.get?taskId=${this.taskId}`;
+    // if completed => get data from card fields
+    t.get('card', 'shared', 'task')
+      .then((task) => {
+        if (task && task.status.id === '5') {
+          this.task = task;
+          t.render(() => t.sizeTo('#content'));
+        } else {
+          t.render(() => {
+            fetch(url)
+              .then(response => response.json())
+              .then(data => {
+                const taskData = data.result.task;
+                this.task.title = taskData.title;
+                this.task.creator = taskData.creator.name;
+                this.task.responsible = taskData.responsible.name;
+                this.task.status = { id: taskData.status, title: statuses[taskData.status] };
+              })
+              .then(() => t.set('card', 'shared', 'task', this.task))
+              .then(() => t.sizeTo('#content'))
+              .catch(error => console.error(error));
+          });
+        }
       });
-
-    t.get('card', 'shared', 'taskId')
-      .then(val => this.taskId = val)
-      .then(() => t.sizeTo('#content'));
   },
 
   template: `
       <div id="content">
-          <p>Task <b>{{taskId}}</b> data will be rendered here</p>
-          <p>Urls: <span id="urls"></span></p>
+          <p><b>{{task.title}}</b></p>
+          <hr>
+          <p><b>Статус</b>: {{task.status.title}}</p>
+          <p><b>Постановщик</b>: {{task.creator}}</p>
+          <p><b>Ответственный</b>: {{task.responsible}}</p>
+          <p><a :href="taskUrl" target="_blank">Открыть в Bitrix</a></p>
       </div>
   `
 };

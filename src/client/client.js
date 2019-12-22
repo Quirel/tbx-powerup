@@ -26,27 +26,25 @@ const getAttachmentSections = (t, options) => {
           return;
         }
 
-        console.log('Url:');
-        console.log(claimed[0].url);
-        console.log('Id:');
-        console.log(getTaskIdFromUrl(claimed[0].url));
+        let attachments = [];
 
-        // t.set('card', 'shared', 'taskId', getTaskIdFromUrl(claimed[0].url))
-        //   .then(() => {
-        //     console.log('task id set');
-            console.log(t.signUrl(`${bxBaseUrl}attachment-sections.html`));
-            return [{
-              // id: getTaskIdFromUrl(claimed[0].url),
-              claimed: claimed,
-              icon: GRAY_ICON,
-              title: 'Task attached',
-              content: {
-                type: 'iframe',
-                url: t.signUrl(`${bxBaseUrl}attachment-sections.html`, { arg: 'JUST ARG' }),
-                height: 230
-              }
-            }];
-          // });
+        for (const key in claimed) {
+          const taskId = getTaskIdFromUrl(claimed[key].url);
+
+          attachments.push({
+            id: taskId,
+            claimed: claimed,
+            icon: GRAY_ICON,
+            title: `Задача № ${taskId}`,
+            content: {
+              type: 'iframe',
+              url: t.signUrl(`${bxBaseUrl}attachment-sections.html`,
+                { taskId: taskId, taskUrl: claimed[key].url, bxLink: bxLink }),
+            }
+          });
+        }
+
+        return attachments;
       });
   } else {
     return [];
@@ -58,31 +56,11 @@ TrelloPowerUp.initialize({
   'show-settings': (t, options) => {
     // noinspection JSUnresolvedFunction
     return t.popup({
-      title: 'Custom Fields Settings',
+      title: 'Settings',
       url: `${bxBaseUrl}settings.html`,
     });
   },
 
   'attachment-sections': getAttachmentSections
 });
-
-// if the title for your section requires a network call or other
-// potentially lengthy operation you can provide a function for the title
-// that returns the section title. If you do so, provide a unique id for
-// your section
-//   return [{
-//     id: 'Yellowstone', // optional if you aren't using a function for the title
-//     claimed: claimed,
-//     icon: GRAY_ICON, // Must be a gray icon, colored icons not allowed.
-//     title: 'Example Attachment Section: Yellowstone',
-//     content: {
-//       type: 'iframe',
-//       url: t.signUrl('./section.html', {
-//         arg: 'you can pass your section args here'
-//       }),
-//       height: 230
-//     }
-//   }];
-// } else {
-//   return [];
 

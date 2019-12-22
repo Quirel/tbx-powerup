@@ -30,6 +30,7 @@ const entries = clientFiles.reduce((acc, entry) => {
 
 module.exports = {
   mode: 'production',
+  // mode: 'development',
   entry: entries.bundles,
   output: {
     filename: '[name].bundle.js',
