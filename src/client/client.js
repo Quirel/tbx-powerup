@@ -64,8 +64,19 @@ TrelloPowerUp.initialize({
     return t.get('card', 'shared', 'task')
       .then((task) => {
         if (task) {
+          let color = null;
+          switch (task.status.id) {
+            case '5':
+              color = 'green';
+              break;
+            case '-1':
+              color = 'red';
+              break
+          }
+
           return [{
-            text: task.status.title
+            text: task.status.title,
+            color: color
           }];
         }
       });

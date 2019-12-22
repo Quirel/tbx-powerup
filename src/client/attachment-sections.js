@@ -40,22 +40,17 @@ const mainComponent = {
   created() {
     const url = `${this.bxLink}tasks.task.get?taskId=${this.taskId}`;
     // if completed => get data from card fields
-    t.get('card', 'shared', 'task')
-      .then((task) => {
-        if (task && task.status.id === '5') {
+    t.render(() => {
+      t.get('card', 'shared', 'task')
+        // .then(() => t.sizeTo('#content'))
+        .then((task) => {
           this.task = task;
-          console.log('Task already loaded');
-          t.render(() => t.sizeTo('#content'));
-        } else {
-          console.log('render');
-          t.render(() => {
-            console.log('Fetching task');
-            console.log(url);
+          // if no task or task not completed
+          if (!(task || task.status.id === '5')) {
             fetch(url)
               .then(response => response.json())
               .then(data => {
                 const taskData = data.result.task;
-                console.log(taskData);
                 this.task.title = taskData.title;
                 this.task.creator = taskData.creator.name;
                 this.task.responsible = taskData.responsible.name;
@@ -64,9 +59,9 @@ const mainComponent = {
               .then(() => t.set('card', 'shared', 'task', this.task))
               .then(() => t.sizeTo('#content'))
               .catch(error => console.error(error));
-          });
-        }
-      });
+          }
+        });
+    });
   },
 
   template: `
