@@ -44,13 +44,18 @@ const mainComponent = {
       .then((task) => {
         if (task && task.status.id === '5') {
           this.task = task;
+          console.log('Task already loaded');
           t.render(() => t.sizeTo('#content'));
         } else {
+          console.log('render');
           t.render(() => {
+            console.log('Fetching task');
+            console.log(url);
             fetch(url)
               .then(response => response.json())
               .then(data => {
                 const taskData = data.result.task;
+                console.log(taskData);
                 this.task.title = taskData.title;
                 this.task.creator = taskData.creator.name;
                 this.task.responsible = taskData.responsible.name;
