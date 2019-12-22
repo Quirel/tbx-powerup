@@ -39,6 +39,7 @@ const getAttachmentSections = (t, options) => {
               type: 'iframe',
               url: t.signUrl(`${bxBaseUrl}attachment-sections.html`,
                 { taskId: taskId, taskUrl: claimed[key].url, bxLink: bxLink }),
+              height: 220
             }
           });
         }
@@ -64,14 +65,14 @@ TrelloPowerUp.initialize({
     return t.get('card', 'shared', 'task')
       .then((task) => {
         if (task) {
-          let color = null;
+          let color = 'light-gray';
           switch (task.status.id) {
             case '5':
               color = 'green';
               break;
             case '-1':
               color = 'red';
-              break
+              break;
           }
 
           return [{
@@ -85,9 +86,31 @@ TrelloPowerUp.initialize({
     return t.get('card', 'shared', 'task')
       .then((task) => {
         if (task) {
-          return [{
-            text: task.status.title
-          }];
+          let color = 'light-gray';
+          switch (task.status.id) {
+            case '5':
+              color = 'green';
+              break;
+            case '-1':
+              color = 'red';
+              break;
+          }
+
+          const d = new Date(task.deadline);
+          console.log(task.deadline);
+          console.log(d);
+          const date = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+          return [
+            {
+              text: task.status.title,
+              color: color
+            },
+            {
+              text: date,
+              color: 'blue'
+            }
+          ];
         }
       });
   }
