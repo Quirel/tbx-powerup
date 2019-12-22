@@ -20,7 +20,7 @@ const getAttachmentSections = (t, options) => {
 
   if (claimed && claimed.length > 0) {
 
-    t.get('board', 'private', 'bxLink')
+    return t.get('board', 'private', 'bxLink')
       .then(bxLink => {
         if (!bxLink) {
           return;
@@ -31,9 +31,9 @@ const getAttachmentSections = (t, options) => {
         console.log('Id:');
         console.log(getTaskIdFromUrl(claimed[0].url));
 
-        t.set('card', 'shared', 'taskId', getTaskIdFromUrl(claimed[0].url))
-          .then(() => {
-            console.log('task id set');
+        // t.set('card', 'shared', 'taskId', getTaskIdFromUrl(claimed[0].url))
+        //   .then(() => {
+        //     console.log('task id set');
             console.log(t.signUrl(`${bxBaseUrl}attachment-sections.html`));
             return [{
               // id: getTaskIdFromUrl(claimed[0].url),
@@ -42,11 +42,11 @@ const getAttachmentSections = (t, options) => {
               title: 'Task attached',
               content: {
                 type: 'iframe',
-                url: t.signUrl(`${bxBaseUrl}attachment-sections.html`, { arg: 'Just Arg!' }),
+                url: t.signUrl(`${bxBaseUrl}attachment-sections.html`, { arg: 'JUST ARG' }),
                 height: 230
               }
             }];
-          });
+          // });
       });
   } else {
     return [];

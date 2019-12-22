@@ -18,7 +18,7 @@ const mainComponent = {
     t.card('attachments')
       .get('attachments')
       .filter((attachment) => {
-        return attachment.url.indexOf('http://www.nps.gov/yell/') == 0;
+        return attachment.url.indexOf('task/view/') !== -1;
       })
       .then(function (yellowstoneAttachments) {
         const urls = yellowstoneAttachments.map(function (a) {
@@ -38,6 +38,7 @@ const mainComponent = {
   template: `
       <div id="content">
           <p>Task <b>{{taskId}}</b> data will be rendered here</p>
+          <p>Urls: <span id="urls"></span></p>
       </div>
   `
 };
