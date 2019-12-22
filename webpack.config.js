@@ -1,6 +1,8 @@
 const path = require('path');
 const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
 
 const publicPath = path.join(__dirname, 'public');
 const templateHtml = path.join(__dirname, 'templates/index.html');
@@ -27,11 +29,13 @@ const entries = clientFiles.reduce((acc, entry) => {
 });
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: entries.bundles,
   output: {
     filename: '[name].bundle.js',
     path: publicPath
   },
-  plugins: [].concat(entries.html)
+  plugins: [
+    new CleanWebpackPlugin()
+  ].concat(entries.html)
 };
