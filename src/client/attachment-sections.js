@@ -4,17 +4,30 @@ import Vue from 'vue/dist/vue.min.js';
 // const Promise = TrelloPowerUp.Promise;
 const t = TrelloPowerUp.iframe();
 
+// const statuses = {
+//   '-3': 'Задача почти просрочена',
+//   '-2': 'Новая задача (не просмотрена)',
+//   '-1': 'Задача просрочена',
+//   '1': 'Новая задача. (Не используется)',
+//   '2': 'Ждет выполнения',
+//   '3': 'Задача выполняется',
+//   '4': 'Условно завершена (ждет контроля постановщиком)',
+//   '5': 'Задача завершена',
+//   '6': 'Задача отложена',
+//   '7': 'Задача отклонена ответственным. (Не используется)'
+// };
+
 const statuses = {
-  '-3': 'Задача почти просрочена',
-  '-2': 'Новая задача (не просмотрена)',
-  '-1': 'Задача просрочена',
-  '1': 'Новая задача. (Не используется)',
-  '2': 'Ждет выполнения',
-  '3': 'Задача выполняется',
-  '4': 'Условно завершена (ждет контроля постановщиком)',
-  '5': 'Задача завершена',
-  '6': 'Задача отложена',
-  '7': 'Задача отклонена ответственным. (Не используется)'
+  '-3': 'Почти просрочена',
+  '-2': 'Новая',
+  '-1': 'Просрочена',
+  '1': 'Новая',
+  '2': 'Ожидание',
+  '3': 'Выполняется',
+  '4': 'Ждет контроля',
+  '5': 'Завершена',
+  '6': 'Отложена',
+  '7': 'Отклонена'
 };
 
 const mainComponent = {
@@ -25,7 +38,7 @@ const mainComponent = {
       bxLink: t.arg('bxLink'),
       task: {
         title: null,
-        status: { id: null, title: null },
+        status: {id: null, title: null},
         creator: null,
         responsible: null,
         deadline: null
@@ -45,7 +58,7 @@ const mainComponent = {
             this.task = task;
           }
           // if no task or task not completed
-          else if (this.task.status.id !== '5') {
+          if (this.task.status.id !== '5') {
             this.isLoading = true;
             fetch(url)
               .then(response => response.json())
@@ -56,7 +69,7 @@ const mainComponent = {
                 this.task.creator = taskData.creator.name;
                 this.task.responsible = taskData.responsible.name;
                 this.task.deadline = taskData.deadline;
-                this.task.status = { id: taskData.status, title: statuses[taskData.status] };
+                this.task.status = {id: taskData.status, title: statuses[taskData.status]};
 
                 if (this.task.status.id !== '5' && Date.parse(this.task.deadline) < Date.now()) {
                   this.task.status.id = '-1';
@@ -91,5 +104,5 @@ new Vue({
     'main-component': mainComponent
   },
   template: `
-      <main-component />`,
+      <main-component/>`,
 });

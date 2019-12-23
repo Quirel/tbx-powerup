@@ -38,7 +38,7 @@ const getAttachmentSections = (t, options) => {
             content: {
               type: 'iframe',
               url: t.signUrl(`${bxBaseUrl}attachment-sections.html`,
-                { taskId: taskId, taskUrl: claimed[key].url, bxLink: bxLink }),
+                {taskId: taskId, taskUrl: claimed[key].url, bxLink: bxLink}),
               height: 220
             }
           });
@@ -51,6 +51,37 @@ const getAttachmentSections = (t, options) => {
   }
 };
 
+const getBadges = (t, options) => {
+  return t.get('card', 'shared', 'task')
+    .then((task) => {
+      if (task) {
+        let color = 'light-gray';
+        switch (task.status.id) {
+          case '5':
+            color = 'green';
+            break;
+          case '-1':
+            color = 'red';
+            break;
+        }
+
+        const d = new Date(task.deadline);
+        const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+        return [
+          {
+            text: task.status.title,
+            color: color
+          },
+          {
+            text: date,
+            color: 'blue'
+          }
+        ];
+      }
+    });
+};
+
 // noinspection JSUnresolvedVariable
 TrelloPowerUp.initialize({
   'show-settings': (t, options) => {
@@ -61,58 +92,7 @@ TrelloPowerUp.initialize({
     });
   },
   'attachment-sections': getAttachmentSections,
-  'card-badges': (t, options) => {
-    return t.get('card', 'shared', 'task')
-      .then((task) => {
-        if (task) {
-          let color = 'light-gray';
-          switch (task.status.id) {
-            case '5':
-              color = 'green';
-              break;
-            case '-1':
-              color = 'red';
-              break;
-          }
-
-          return [{
-            text: task.status.title,
-            color: color
-          }];
-        }
-      });
-  },
-  'card-detail-badges': (t, options) => {
-    return t.get('card', 'shared', 'task')
-      .then((task) => {
-        if (task) {
-          let color = 'light-gray';
-          switch (task.status.id) {
-            case '5':
-              color = 'green';
-              break;
-            case '-1':
-              color = 'red';
-              break;
-          }
-
-          const d = new Date(task.deadline);
-          console.log(task.deadline);
-          console.log(d);
-          const date = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-
-          return [
-            {
-              text: task.status.title,
-              color: color
-            },
-            {
-              text: date,
-              color: 'blue'
-            }
-          ];
-        }
-      });
-  }
+  'card-badges': getBadges,
+  'card-detail-badges': getBadges,
 });
 
