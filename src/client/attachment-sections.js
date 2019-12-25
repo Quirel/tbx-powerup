@@ -41,6 +41,8 @@ const mainComponent = {
         status: {id: null, title: null},
         creator: null,
         responsible: null,
+        creatorLink: null,
+        responsibleLink: null,
         deadline: null
       },
       isLoading: false,
@@ -63,11 +65,15 @@ const mainComponent = {
             fetch(url)
               .then(response => response.json())
               .then(data => {
+                const baseUrl = new URL(this.bxLink).origin;
+
                 this.isLoading = false;
                 const taskData = data.result.task;
                 this.task.title = taskData.title;
                 this.task.creator = taskData.creator.name;
                 this.task.responsible = taskData.responsible.name;
+                this.task.creatorLink = baseUrl + taskData.creator.link;
+                this.task.responsibleLink = baseUrl + taskData.responsible.link;
                 this.task.deadline = taskData.deadline;
                 this.task.status = {id: taskData.status, title: statuses[taskData.status]};
 
@@ -91,8 +97,18 @@ const mainComponent = {
               <p><b>{{task.title}}</b></p>
               <hr>
               <p><b>Статус</b>: {{task.status.title}}</p>
-              <p><b>Постановщик</b>: {{task.creator}}</p>
-              <p><b>Ответственный</b>: {{task.responsible}}</p>
+              <p>
+                  <b>Постановщик</b>: {{task.creator}} 
+                  <small v-if="task.creatorLink">
+                      <a :href="task.creatorLink">открыть в bitrix</a>
+                  </small>
+              </p>
+              <p>
+                  <b>Ответственный</b>: {{task.responsible}}
+                  <small v-if="task.responsibleLink">
+                      <a :href="task.responsibleLink">открыть в bitrix</a>
+                  </small>
+              </p>
               <p><a :href="taskUrl" target="_blank">Открыть в Bitrix</a></p>
               <p v-show="isLoading"><small>Идет загрузка данных..</small></p>
           </div>
