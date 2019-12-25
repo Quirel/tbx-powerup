@@ -97,19 +97,15 @@ const mainComponent = {
               <p><b>{{task.title}}</b></p>
               <hr>
               <p><b>Статус</b>: {{task.status.title}}</p>
-              <p>
-                  <b>Постановщик</b>: {{task.creator}} 
-                  <small v-if="task.creatorLink">
-                      <a :href="task.creatorLink">открыть в bitrix</a>
-                  </small>
-              </p>
-              <p>
-                  <b>Ответственный</b>: {{task.responsible}}
-                  <small v-if="task.responsibleLink">
-                      <a :href="task.responsibleLink">открыть в bitrix</a>
-                  </small>
-              </p>
-              <p><a :href="taskUrl" target="_blank">Открыть в Bitrix</a></p>
+              <template v-if="task.creatorLink">
+                  <p><b>Постановщик</b>: <a :href="task.creatorLink" target="_blank">{{task.creator}}</a></p>
+                  <p><b>Ответственный</b>: <a :href="task.responsibleLink" target="_blank">{{task.responsible}}</a></p>
+              </template>
+              <template v-else>
+                  <p><b>Постановщик</b>: {{task.creator}}</p>
+                  <p><b>Ответственный</b>: {{task.responsible}}</p>
+              </template>
+              <p><a :href="taskUrl" target="_blank">Открыть задачу в Bitrix</a></p>
               <p v-show="isLoading"><small>Идет загрузка данных..</small></p>
           </div>
           <div v-else>
