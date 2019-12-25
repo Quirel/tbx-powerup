@@ -87,13 +87,19 @@ const mainComponent = {
 
   template: `
       <div id="content">
-          <p><b>{{task.title}}</b></p>
-          <hr>
-          <p><b>Статус</b>: {{task.status.title}}</p>
-          <p><b>Постановщик</b>: {{task.creator}}</p>
-          <p><b>Ответственный</b>: {{task.responsible}}</p>
-          <p><a :href="taskUrl" target="_blank">Открыть в Bitrix</a></p>
-          <p v-show="isLoading"><small>Идет загрузка данных..</small></p>
+          <div v-if="task.title" class="task">
+              <p><b>{{task.title}}</b></p>
+              <hr>
+              <p><b>Статус</b>: {{task.status.title}}</p>
+              <p><b>Постановщик</b>: {{task.creator}}</p>
+              <p><b>Ответственный</b>: {{task.responsible}}</p>
+              <p><a :href="taskUrl" target="_blank">Открыть в Bitrix</a></p>
+              <p v-show="isLoading"><small>Идет загрузка данных..</small></p>
+          </div>
+          <div v-else>
+              <p style="color: tomato"><b>Не удалось загрузить данные</b></p>
+              <p>Некорректная ссылка на задачу или недостаточно прав на ее просмотр</p>
+          </div>
       </div>
   `
 };
