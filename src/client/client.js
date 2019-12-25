@@ -76,6 +76,43 @@ const getBadges = (t, options) => {
           {
             text: date,
             color: 'blue'
+          },
+          {
+            text: `Отв.: ${task.responsible}`,
+          },
+          {
+            text: `Пост.: ${task.creator}`,
+          }
+        ];
+      }
+    });
+};
+
+const getBackBadges = (t, options) => {
+  return t.get('card', 'shared', 'task')
+    .then((task) => {
+      if (task) {
+        let color = 'light-gray';
+        switch (task.status.id) {
+          case '5':
+            color = 'green';
+            break;
+          case '-1':
+            color = 'red';
+            break;
+        }
+
+        const d = new Date(task.deadline);
+        const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+        return [
+          {
+            text: task.status.title,
+            color: color
+          },
+          {
+            text: date,
+            color: 'blue'
           }
         ];
       }
@@ -93,6 +130,6 @@ TrelloPowerUp.initialize({
   },
   'attachment-sections': getAttachmentSections,
   'card-badges': getBadges,
-  'card-detail-badges': getBadges,
+  'card-detail-badges': getBackBadges,
 });
 
