@@ -119,6 +119,33 @@ const getBackBadges = (t, options) => {
     });
 };
 
+const createCardFromUrl = (t, options) => {
+  return t.get('board', 'private', 'bxLink')
+    .then(bxLink => {
+      const taskId = getTaskIdFromUrl(options.url);
+      console.log(`task id: ${taskId}`);
+      const url = `${bxLink}tasks.task.get?taskId=${taskId}`;
+      console.log(`task url: ${url}`);
+
+
+      return fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const title = data.result.task.title;
+
+          return new Promise(resolve => {
+            resolve({
+              name: title,
+            });
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          throw t.NotHandled();
+        })
+    });
+};
+
 // noinspection JSUnresolvedVariable
 TrelloPowerUp.initialize({
   'show-settings': (t, options) => {
@@ -131,5 +158,6 @@ TrelloPowerUp.initialize({
   'attachment-sections': getAttachmentSections,
   'card-badges': getBadges,
   'card-detail-badges': getBackBadges,
+  'card-from-url': createCardFromUrl,
 });
 
