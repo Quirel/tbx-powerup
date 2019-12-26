@@ -33,7 +33,7 @@ module.exports = {
   // mode: 'development',
   entry: entries.bundles,
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].bundle.[contenthash].js',
     path: publicPath
   },
   plugins: [
