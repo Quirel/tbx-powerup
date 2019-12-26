@@ -28,7 +28,8 @@ const mainComponent = {
 
   template: `
       <div id="content">
-          <input v-model="bxLink" type="text">
+          <label for="bxlink">Bitrix24 webhook</label>
+          <input id="bxlink" v-model="bxLink" type="text" placeholder="https://bx.company.ru/rest/123/fgjaslkjqeyourcode/">
           <button id="save" @click="saveData" style="float:right" class="mod-primary">Save</button>
       </div>
   `,
