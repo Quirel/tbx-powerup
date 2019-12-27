@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "deploy": "s3cmd sync public/* s3://tbx-powerup",
+    "deploy": "s3cmd sync --delete-removed -r public/ s3://tbx-powerup",
     "prod": "npm run build && npm run deploy"
   },
   "keywords": [],
