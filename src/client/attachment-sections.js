@@ -38,7 +38,7 @@ const mainComponent = {
       bxLink: t.arg('bxLink'),
       task: {
         title: null,
-        status: {id: null, title: null},
+        status: { id: null, title: null },
         creator: null,
         responsible: null,
         creatorLink: null,
@@ -52,43 +52,42 @@ const mainComponent = {
   created() {
     const url = `${this.bxLink}tasks.task.get?taskId=${this.taskId}`;
     // if completed => get data from card fields
-    t.render(() => {
-      t.get('card', 'shared', 'task')
-        // .then(() => t.sizeTo('#content'))
-        .then((task) => {
-          if (task) {
-            this.task = task;
-          }
-          // if no task or task not completed
-          if (this.task.status.id !== '5') {
-            this.isLoading = true;
-            fetch(url)
-              .then(response => response.json())
-              .then(data => {
-                const baseUrl = new URL(this.bxLink).origin;
+    t.render(async () => {
+      const task = await t.get('card', 'shared', 'task')
+      // .then(() => t.sizeTo('#content'))
+      if (task) {
+        this.task = task;
+      }
+      // if no task or task not completed
+      if (this.task.status.id !== '5') {
+        this.isLoading = true;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          const baseUrl = new URL(this.bxLink).origin;
+          this.isLoading = false;
+          const taskData = data.result.task;
+        } catch (error) {
+          console.error(error);
+        }
 
-                this.isLoading = false;
-                const taskData = data.result.task;
-                this.task.title = taskData.title;
-                this.task.creator = taskData.creator.name;
-                this.task.responsible = taskData.responsible.name;
-                this.task.creatorLink = baseUrl + taskData.creator.link;
-                this.task.responsibleLink = baseUrl + taskData.responsible.link;
-                this.task.deadline = taskData.deadline;
-                this.task.status = {id: taskData.status, title: statuses[taskData.status]};
 
-                if (this.task.status.id !== '5' && Date.parse(this.task.deadline) < Date.now()) {
-                  this.task.status.id = '-1';
-                  this.task.status.title = statuses[this.task.status.id];
-                }
+        this.task.title = taskData.title;
+        this.task.creator = taskData.creator.name;
+        this.task.responsible = taskData.responsible.name;
+        this.task.creatorLink = baseUrl + taskData.creator.link;
+        this.task.responsibleLink = baseUrl + taskData.responsible.link;
+        this.task.deadline = taskData.deadline;
+        this.task.status = { id: taskData.status, title: statuses[taskData.status] };
 
-              })
-              .then(() => t.set('card', 'shared', 'task', this.task))
-              .then(() => t.sizeTo('#content'))
-              .catch(error => console.error(error));
-          }
-        });
-    });
+        if (this.task.status.id !== '5' && Date.parse(this.task.deadline) < Date.now()) {
+          this.task.status.id = '-1';
+          this.task.status.title = statuses[this.task.status.id];
+        }
+      }
+    })
+      .then(() => t.set('card', 'shared', 'task', this.task))
+      .then(() => t.sizeTo('#content'))
   },
 
   template: `
