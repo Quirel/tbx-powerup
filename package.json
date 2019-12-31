@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "deploy": "s3cmd sync --delete-removed -r public/ s3://tbx-powerup",
-    "prod": "npm run build && npm run deploy"
+    "deploy-dev": "s3cmd sync --delete-removed -r public/ s3://tbx-powerup-dev",
+    "prod": "npm run build && npm run deploy",
+    "dev": "npm run build && npm run deploy-dev"
   },
   "keywords": [],
   "author": "",
