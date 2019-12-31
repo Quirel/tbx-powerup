@@ -8,6 +8,67 @@ const getTaskIdFromUrl = (url) => {
   return url.match(/task\/view\/\d+/)[0].match(/\d+/)[0];
 };
 
+/**
+ * Get task from bitrix
+ * @param bxLink
+ * @param id
+ * @returns {Promise<boolean|{creator: null, responsible: null, creatorLink: null, title: null, deadline: null, responsibleLink: null, status: {id: null, title: null}}|{creator: null, responsible: null, creatorLink: null, title: null, deadline: null, responsibleLink: null, status: {id: null, title: null}}>}
+ */
+export const getTaskData = async (bxLink, id) => {
+  const url = `${bxLink}tasks.task.get?taskId=${id}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.result.task;
+  }
+  catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+/**
+ * Create task object from bitrix data
+ * @param data {Object}
+ * @param bxLink {String}
+ * @returns {{}}
+ */
+export const createTaskFromData = (data, bxLink) => {
+  const baseUrl = new URL(bxLink).origin;
+
+  const task = {};
+
+  const statuses = {
+    '-3': 'Почти просрочена',
+    '-2': 'Новая',
+    '-1': 'Просрочена',
+    '1': 'Новая',
+    '2': 'Ожидание',
+    '3': 'Выполняется',
+    '4': 'Ждет контроля',
+    '5': 'Завершена',
+    '6': 'Отложена',
+    '7': 'Отклонена'
+  };
+
+  task.title = data.title;
+  task.creator = data.creator.name;
+  task.responsible = data.responsible.name;
+  task.creatorLink = baseUrl + data.creator.link;
+  task.responsibleLink = baseUrl + data.responsible.link;
+  task.deadline = data.deadline;
+  task.status = { id: data.status, title: statuses[data.status] };
+
+  if (task.status.id !== '5' && Date.parse(task.deadline) < Date.now()) {
+    task.status.id = '-1';
+    task.status.title = statuses[task.status.id];
+  }
+
+  return task;
+};
+
+
 const getAttachmentSections = async (t, options) => {
   // Example attachment link
   // https://bx.vladlink.ru/company/personal/user/1978/tasks/task/view/353173/
@@ -19,7 +80,7 @@ const getAttachmentSections = async (t, options) => {
 
   if (claimed && claimed.length > 0) {
 
-    const bxLink = await t.get('board', 'private', 'bxLink')
+    const bxLink = await t.get('board', 'private', 'bxLink');
     if (!bxLink) {
       return;
     }
@@ -113,16 +174,16 @@ const getBackBadges = async (t, options) => {
 };
 
 const createCardFromUrl = async (t, options) => {
-  const bxLink = await t.get('board', 'private', 'bxLink')
+  const bxLink = await t.get('board', 'private', 'bxLink');
   const taskId = getTaskIdFromUrl(options.url);
-  const url = `${bxLink}tasks.task.get?taskId=${taskId}`;
 
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const title = data.result.task.title;
-    return { name: title };
-  } catch (error) {
+    const data = await getTaskData(bxLink, taskId);
+    const task = createTaskFromData(data, bxLink);
+
+    return { name: task.title };
+  }
+  catch (error) {
     console.error(error);
   }
 };
