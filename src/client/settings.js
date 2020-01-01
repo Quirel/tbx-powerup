@@ -11,7 +11,7 @@ const mainComponent = {
   },
 
   async created() {
-    this.bxLink = await t.get('board', 'private', 'bxLink')
+    this.bxLink = await t.get('board', 'private', 'bxLink');
     t.sizeTo('#content');
   },
 

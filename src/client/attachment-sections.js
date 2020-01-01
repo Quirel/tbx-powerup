@@ -37,7 +37,6 @@ const mainComponent = {
     },
 
     async created() {
-      await t.render();
       const task = await t.get('card', 'shared', 'task');
       if (task) {
         this.task = task;
@@ -45,16 +44,21 @@ const mainComponent = {
 
       if (this.task.status.id === '5') {
         this.isLoading = false;
-        await t.sizeTo('#content');
         return;
       }
 
-      const data = await getTaskData(this.bxLink, this.taskId);
-      this.task = createTaskFromData(data, this.bxLink);
+      try {
+        const data = await getTaskData(this.bxLink, this.taskId);
+        if (data.title) {
+          this.task = createTaskFromData(data, this.bxLink);
+          await t.set('card', 'shared', 'task', this.task);
+        }
+      }
+      catch (e) {
+        console.error('Не удалось загрузить данные задачи.\n', e);
+      }
 
       this.isLoading = false;
-
-      await t.set('card', 'shared', 'task', this.task);
       t.sizeTo('#content');
     },
 
