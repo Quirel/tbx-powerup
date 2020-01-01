@@ -68,6 +68,42 @@ export const createTaskFromData = (data, bxLink) => {
   return task;
 };
 
+const sortByDeadline = (t) => {
+    return [{
+      text: 'Deadline',
+      callback: async (t, opts) => {
+
+        const tasks = {};
+        for (const card of opts.cards) {
+          tasks[card.id] = await t.get(card.id, 'shared', 'task');
+        }
+
+        const sortedCards = opts.cards.sort(
+          (a, b) => {
+
+            const aTask = tasks[a.id];
+            const bTask = tasks[b.id];
+
+            if (aTask.deadline > bTask.deadline) {
+              return 1;
+            } else if (bTask.deadline > aTask.deadline) {
+              return -1;
+            }
+            return 0;
+          }
+        );
+
+        return {
+          sortedIds: sortedCards.map((c) => {
+            return c.id;
+          })
+        };
+      }
+    }]
+      ;
+  }
+;
+
 
 const getAttachmentSections = async (t, options) => {
   // Example attachment link
@@ -201,5 +237,6 @@ TrelloPowerUp.initialize({
   'card-badges': getBadges,
   'card-detail-badges': getBackBadges,
   'card-from-url': createCardFromUrl,
+  'list-sorters': sortByDeadline
 });
 
