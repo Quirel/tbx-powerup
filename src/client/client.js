@@ -68,41 +68,65 @@ export const createTaskFromData = (data, bxLink) => {
   return task;
 };
 
-const sortByDeadline = (t) => {
-    return [{
-      text: 'Deadline',
-      callback: async (t, opts) => {
+const sortByDeadlineAsc = async (t, opts) => {
 
-        const tasks = {};
-        for (const card of opts.cards) {
-          tasks[card.id] = await t.get(card.id, 'shared', 'task');
-        }
-
-        const sortedCards = opts.cards.sort(
-          (a, b) => {
-
-            const aTask = tasks[a.id];
-            const bTask = tasks[b.id];
-
-            if (aTask.deadline > bTask.deadline) {
-              return 1;
-            } else if (bTask.deadline > aTask.deadline) {
-              return -1;
-            }
-            return 0;
-          }
-        );
-
-        return {
-          sortedIds: sortedCards.map((c) => {
-            return c.id;
-          })
-        };
-      }
-    }]
-      ;
+  const tasks = {};
+  for (const card of opts.cards) {
+    tasks[card.id] = await t.get(card.id, 'shared', 'task', { deadline: '0' });
   }
-;
+
+  const sortedCards = opts.cards.sort(
+    (a, b) => {
+
+      const aTask = tasks[a.id];
+      const bTask = tasks[b.id];
+
+      if (aTask.deadline > bTask.deadline) {
+        return 1;
+      } else if (bTask.deadline > aTask.deadline) {
+        return -1;
+      }
+      return 0;
+    }
+  );
+
+  return {
+    sortedIds: sortedCards.map((c) => {
+      return c.id;
+    })
+  };
+
+};
+
+const sortByDeadlineDesc = async (t, opts) => {
+
+  const tasks = {};
+  for (const card of opts.cards) {
+    tasks[card.id] = await t.get(card.id, 'shared', 'task', { deadline: '0' });
+  }
+
+  const sortedCards = opts.cards.sort(
+    (a, b) => {
+
+      const aTask = tasks[a.id];
+      const bTask = tasks[b.id];
+
+      if (aTask.deadline < bTask.deadline) {
+        return 1;
+      } else if (bTask.deadline < aTask.deadline) {
+        return -1;
+      }
+      return 0;
+    }
+  );
+
+  return {
+    sortedIds: sortedCards.map((c) => {
+      return c.id;
+    })
+  };
+
+};
 
 
 const getAttachmentSections = async (t, options) => {
@@ -237,6 +261,11 @@ TrelloPowerUp.initialize({
   'card-badges': getBadges,
   'card-detail-badges': getBackBadges,
   'card-from-url': createCardFromUrl,
-  'list-sorters': sortByDeadline
+  'list-sorters': (t) => {
+    return [
+      { text: 'bx: Крайний срок ↑', callback: sortByDeadlineAsc },
+      { text: 'bx: Крайний срок ↓', callback: sortByDeadlineDesc },
+    ];
+  }
 });
 
