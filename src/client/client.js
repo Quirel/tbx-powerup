@@ -19,12 +19,50 @@ export const getTaskData = async (bxLink, id) => {
   try {
     const response = await fetch(url);
     const data = await response.json();
-    return data.result.task;
+
+    const cost = await getTaskCost(bxLink, id);
+
+    const task = data.result.task;
+    task['cost'] = cost;
+
+    return task;
   }
   catch (error) {
     console.error(error);
     return false;
   }
+};
+
+/**
+ * Get task cost from bitrix comment
+ * Read last comment with 'cost'
+ * @param bxLink
+ * @param taskId
+ * @returns {Promise<boolean|string>}
+ */
+export const getTaskCost = async (bxLink, taskId) => {
+  const url = `${bxLink}task.commentitem.getlist?taskId=${taskId}`;
+
+  const regex = /^cost_\d+$/;
+  let cost = null;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    for (let comment of data.result) {
+      const matches = (comment['POST_MESSAGE']).match(regex);
+
+      if (matches) {
+        cost = matches[0].match(/\d+/)[0];
+      }
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+
+  return cost;
 };
 
 /**
@@ -63,6 +101,8 @@ export const createTaskFromData = (data, bxLink) => {
     task.status.id = '-1';
     task.status.title = statuses[task.status.id];
   }
+
+  task.cost = data.cost;
 
   return task;
 };
@@ -184,7 +224,7 @@ const getBadges = async (t, options) => {
     const d = new Date(task.deadline);
     const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
-    return [
+    const data = [
       {
         text: task.status.title,
         color: color
@@ -200,6 +240,14 @@ const getBadges = async (t, options) => {
         text: `Пост.: ${task.creator}`,
       }
     ];
+
+    const doShowCost = await t.get('board', 'private', 'showCost');
+
+    if (task.cost && doShowCost) {
+      data.push({text: `cost: ${task.cost}`, color: 'light-gray'})
+    }
+
+    return data;
   }
 };
 
@@ -219,7 +267,7 @@ const getBackBadges = async (t, options) => {
     const d = new Date(task.deadline);
     const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
-    return [
+    let data = [
       {
         text: task.status.title,
         color: color
@@ -229,6 +277,14 @@ const getBackBadges = async (t, options) => {
         color: 'blue'
       }
     ];
+
+    const doShowCost = await t.get('board', 'private', 'showCost');
+
+    if (task.cost && doShowCost) {
+      data.push({text: `cost: ${task.cost}`, color: 'light-gray'})
+    }
+
+    return data;
   }
 };
 
