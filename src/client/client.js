@@ -21,9 +21,11 @@ export const getTaskData = async (bxLink, id) => {
     const data = await response.json();
 
     const cost = await getTaskCost(bxLink, id);
-    console.log(cost);
 
-    return data.result.task;
+    const task = data.result.task;
+    task['cost'] = cost;
+
+    return task;
   }
   catch (error) {
     console.error(error);
@@ -47,16 +49,12 @@ export const getTaskCost = async (bxLink, taskId) => {
   try {
     const response = await fetch(url);
     const data = await response.json();
-    console.log('data:');
-    console.log(data);
 
-    for (const n, comment in data.result.entries()) {
-      console.log(comment['POST_MESSAGE']);
+    for (let comment of data.result) {
       const matches = (comment['POST_MESSAGE']).match(regex);
 
       if (matches) {
         cost = matches[0].match(/\d+/)[0];
-        console.warn('MATCH:', cost)
       }
     }
 
@@ -103,6 +101,8 @@ export const createTaskFromData = (data, bxLink) => {
     task.status.id = '-1';
     task.status.title = statuses[task.status.id];
   }
+
+  task.cost = data.cost;
 
   return task;
 };
@@ -224,7 +224,7 @@ const getBadges = async (t, options) => {
     const d = new Date(task.deadline);
     const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
-    return [
+    const data = [
       {
         text: task.status.title,
         color: color
@@ -240,6 +240,12 @@ const getBadges = async (t, options) => {
         text: `Пост.: ${task.creator}`,
       }
     ];
+
+    if (task.cost) {
+      data.push({text: `cost: ${task.cost}`, color: 'light-gray'})
+    }
+
+    return data;
   }
 };
 
@@ -259,7 +265,7 @@ const getBackBadges = async (t, options) => {
     const d = new Date(task.deadline);
     const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
-    return [
+    let data = [
       {
         text: task.status.title,
         color: color
@@ -269,6 +275,12 @@ const getBackBadges = async (t, options) => {
         color: 'blue'
       }
     ];
+
+    if (task.cost) {
+      data.push({text: `cost: ${task.cost}`, color: 'light-gray'})
+    }
+
+    return data;
   }
 };
 
