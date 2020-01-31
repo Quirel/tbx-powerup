@@ -241,7 +241,9 @@ const getBadges = async (t, options) => {
       }
     ];
 
-    if (task.cost) {
+    const doShowCost = await t.get('board', 'private', 'showCost');
+
+    if (task.cost && doShowCost) {
       data.push({text: `cost: ${task.cost}`, color: 'light-gray'})
     }
 
@@ -276,7 +278,9 @@ const getBackBadges = async (t, options) => {
       }
     ];
 
-    if (task.cost) {
+    const doShowCost = await t.get('board', 'private', 'showCost');
+
+    if (task.cost && doShowCost) {
       data.push({text: `cost: ${task.cost}`, color: 'light-gray'})
     }
 
