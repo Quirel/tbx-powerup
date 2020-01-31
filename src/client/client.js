@@ -19,12 +19,52 @@ export const getTaskData = async (bxLink, id) => {
   try {
     const response = await fetch(url);
     const data = await response.json();
+
+    const cost = await getTaskCost(bxLink, id);
+    console.log(cost);
+
     return data.result.task;
   }
   catch (error) {
     console.error(error);
     return false;
   }
+};
+
+/**
+ * Get task cost from bitrix comment
+ * Read last comment with 'cost'
+ * @param bxLink
+ * @param taskId
+ * @returns {Promise<boolean|string>}
+ */
+export const getTaskCost = async (bxLink, taskId) => {
+  const url = `${bxLink}task.commentitem.getlist?taskId=${taskId}`;
+
+  const regex = /^cost_\d+$/;
+  let cost = null;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log('data:');
+    console.log(data);
+
+    for (const n, comment in data.result.entries()) {
+      console.log(comment['POST_MESSAGE']);
+      const matches = (comment['POST_MESSAGE']).match(regex);
+
+      if (matches) {
+        cost = matches[0].match(/\d+/)[0];
+        console.warn('MATCH:', cost)
+      }
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+
+  return cost;
 };
 
 /**
